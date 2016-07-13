@@ -234,7 +234,8 @@ public class CommandProcessor {
                         System.out.println(line);
                     }
                     else {
-                        if(line.contains(args[0]))
+                        if(line.replaceAll("\\d","").toLowerCase().contains(args[0].toLowerCase()) &&
+                                !args[0].equals("Services") &&  !args[0].equals("Console"))
                             System.out.println(line);
                     }
                 }
