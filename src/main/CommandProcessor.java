@@ -217,12 +217,19 @@ public class CommandProcessor {
         public boolean execute(Context context, String... args) {
             try {
                 Process p = null;
-                if (SystemUtils.IS_OS_UNIX) {
+                if (SystemUtils.IS_OS_UNIX && args == null) {
                      p = Runtime.getRuntime().exec("ps -e");
                 }
-                if(SystemUtils.IS_OS_WINDOWS) {
+                else if (SystemUtils.IS_OS_UNIX && args != null) {
+                     p = Runtime.getRuntime().exec("ps -C " + args[0]);
+                }
+                if(SystemUtils.IS_OS_WINDOWS && args == null) {
                      p = Runtime.getRuntime().exec
                             (System.getenv("windir") +"\\system32\\"+"tasklist.exe");
+                }
+                if(SystemUtils.IS_OS_WINDOWS && args != null) {
+                    p = Runtime.getRuntime().exec
+                            ("tasklist /FI \"IMAGENAME eq " + args[0]+ "\" /NH");
                 }
                 String line;
 
@@ -230,14 +237,7 @@ public class CommandProcessor {
                         new BufferedReader(new InputStreamReader(p.getInputStream()));
 
                 while ((line = input.readLine()) != null) {
-                    if (args == null) {
-                        System.out.println(line);
-                    }
-                    else {
-                        if(line.replaceAll("\\d","").toLowerCase().contains(args[0].toLowerCase()) &&
-                                !args[0].equals("Services") &&  !args[0].equals("Console"))
-                            System.out.println(line);
-                    }
+                    System.out.println(line);
                 }
                 input.close();
             } catch (Exception err) {
@@ -258,7 +258,7 @@ public class CommandProcessor {
 
         @Override
         public String getDescription() {
-            return "Allows you to view all the processes running on the machine";
+            return "ps\nps <command name>\nAllows you to view all the processes running on the machine";
         }
     }
 
